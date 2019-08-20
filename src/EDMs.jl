@@ -32,7 +32,7 @@ Generate an EDM from a Matrix or TripletEmbeddings.Embedding:
      0.0446553  0.0         0.00409058
      0.0418744  0.00409058  0.0
 """
-struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
+mutable struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
     D::Matrix{AbstractFloat} # Euclidean distances matrix
 
     function EuclideanDistanceMatrix(d::Int, n::Int)
@@ -55,7 +55,7 @@ struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
     end
 end
 
-struct MaskedEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
+mutable struct MaskedEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
     D::Matrix{AbstractFloat} # Euclidean distances matrix
     mask::Matrix{Int}
 
@@ -98,6 +98,11 @@ mask(D::MaskedEuclideanDistanceMatrix) = D .* D.mask
 
 Base.size(D::AbstractEuclideanDistanceMatrix) = size(D.D)
 Base.getindex(D::AbstractEuclideanDistanceMatrix, inds...) = getindex(D.D, inds...)
+
+function Base.:*(s::Number, D::AbstractEuclideanDistanceMatrix)
+    D.D = s * D.D
+    return D
+end
 
 LinearAlgebra.rank(D::AbstractEuclideanDistanceMatrix) = rank(D.D)
 

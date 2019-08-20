@@ -35,3 +35,7 @@ function randommask(D::AbstractMatrix{T}, p::T; symmetric=true) where T <: Real
         return [rand(Bernoulli(p)) for i in CartesianIndices(D)]
     end
 end
+
+function relativeerror(D::AbstractEuclideanDistanceMatrix{T}, D̂::AbstractEuclideanDistanceMatrix{T}) where T <: Real
+    return norm(D - D̂)/norm(D) * 100
+end
