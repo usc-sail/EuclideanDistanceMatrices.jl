@@ -6,7 +6,7 @@ using LinearAlgebra
 using Distributions
 using TripletEmbeddings
 
-import Base: size, getindex, *, ndims
+import Base: size, getindex, *, ndims, show
 import LinearAlgebra: rank
 import TripletEmbeddings: label
 
@@ -19,7 +19,7 @@ export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix, J,
        relativeerror,
 
        # completion.jl
-       complete
+       complete, AlternatingDescent
 
 include("EDMs.jl")
 include("triplets.jl")

@@ -47,11 +47,17 @@ mutable struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
         new{eltype(X)}(D)
     end
 
-    function EuclideanDistanceMatrix(X::AbstractMatrix{T}) where T       
-        # This is equivalent to D = diag(G) * ones(1,n) - 2G + ones(n) * diag(G)',
-        # where G is the Gram matrix of (centered) X.
-        D = pairwise(SqEuclidean(), X, dims=2)
-        new{T}(D)
+    function EuclideanDistanceMatrix(X::AbstractMatrix{T}; distances::Bool=false) where T
+        if distances
+            if isedm(X) || throw(error("D is not an EDM, but distances == true"))
+                new{T}(X)
+            end
+        else
+            # This is equivalent to D = diag(G) * ones(1,n) - 2G + ones(n) * diag(G)',
+            # where G is the Gram matrix of (centered) X.
+            D = pairwise(SqEuclidean(), X, dims=2)
+            new{T}(D)
+        end
     end
 end
 
@@ -86,7 +92,7 @@ mutable struct MaskedEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatr
 
     function MaskedEuclideanDistanceMatrix(
         D::EuclideanDistanceMatrix{T},
-        mask::Matrix{Int}) where T <: Real
+        mask::Matrix{S}) where {T <: Real, S <: Real}
         
         @assert size(D) == size(mask)
         new{T}(D.D, mask)
@@ -121,7 +127,8 @@ function isedm(D::Matrix{T}; tol=sqrt(eps())) where T
     λs = eigvals(-J(n) * D * J(n) / 2)
     
     # isposdef doesn't work in this case for eigvals that are slightly negative (i.e. -1e-16).
-    return all((isapprox.(λs, zeros(n), atol=tol)) .| (λs .≥ 0.0))
+    return all((isapprox.(real(λs), zeros(n), atol=tol)) .| (real(λs) .≥ 0.0)) .& # Real part
+           all(isapprox.(imag(λs), zeros(n), atol=tol))                           # Imag part
 end
 
 function J(n::Int)

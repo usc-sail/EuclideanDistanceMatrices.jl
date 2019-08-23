@@ -1,12 +1,7 @@
-function complete(D::MaskedEuclideanDistanceMatrix{T}, loss::TripletEmbeddings.AbstractLoss, d::Int) where T <: Real
-    @assert d ≥ 1 "d must be ≥ 1"
+abstract type AbstractLoss end
 
-    triplets = Triplets(D)
-    X = Embedding(d, size(D,1))
-    _ = fit!(loss, triplets, X)
+# Triplet Embeddings
+include("algorithms/triplet_embeddings.jl")
 
-    D̂ = EuclideanDistanceMatrix(X)
-    s = mean(filter(!isnan, D./D̂))    
-
-    return s * D̂
-end
+# Alternating Descent
+include("algorithms/alternating_descent.jl")
