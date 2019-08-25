@@ -1,5 +1,7 @@
 module EuclideanDistanceMatrices
 
+using SCS
+using Convex
 using Random
 using Distances
 using LinearAlgebra
@@ -19,7 +21,7 @@ export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix, J,
        relativeerror,
 
        # completion.jl
-       complete, AlternatingDescent
+       complete, AlternatingDescent, SDP
 
 include("EDMs.jl")
 include("triplets.jl")

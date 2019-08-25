@@ -138,7 +138,7 @@ Authors: Nam Sun Wang (Matlab version), Karel Mundnich (Julia port)
 function roots(a::Real, b::Real, c::Real, d::Real)
     # Step 0: If a is 0 use the quadratic formula
     if a == 0.0
-        return quadfcn(b, c, d)
+        return roots(b, c, d)
     end
 
     # Cubic equation with 3 roots
