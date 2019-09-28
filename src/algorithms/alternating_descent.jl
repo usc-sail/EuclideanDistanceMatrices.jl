@@ -41,7 +41,12 @@ function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2,
             d = 4 * sum((X[ind,coor_ind] .-  X_connected[:,coor_ind]) .* (sum((repeat(X[ind:ind,:], size(X_connected, 1), 1) .- X_connected).^2, dims=2) - connectivity_vector[ind]))
         
             DeltaX_vec = roots(a, b, c, d)
-            DeltaX_vec = real(DeltaX_vec[abs.(imag(DeltaX_vec)) .< eps()])
+            if DeltaX_vec != nothing
+                # If we have no solutions, we should break and return
+                DeltaX_vec = real(DeltaX_vec[abs.(imag(DeltaX_vec)) .< eps()])
+            else
+                break
+            end
 
             cc = zeros(Float64, length(DeltaX_vec))
 
