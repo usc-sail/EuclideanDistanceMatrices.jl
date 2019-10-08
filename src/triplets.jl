@@ -1,9 +1,9 @@
 """
-    label(D::EuclideanDistanceMatrix{T}) where T
+    Triplets(D::EuclideanDistanceMatrix{T}) where T
 
 Compute the triplets from D.
 """
-function TripletEmbeddings.label(D::EuclideanDistanceMatrix{T}) where T <: Real
+function TripletEmbeddings.Triplets(D::EuclideanDistanceMatrix{T}) where T <: Real
   
     n = size(D,1)
     triplets = Vector{Tuple{Int,Int,Int}}(undef, n*binomial(n-1, 2))
@@ -21,13 +21,13 @@ function TripletEmbeddings.label(D::EuclideanDistanceMatrix{T}) where T <: Real
         end
     end
 
-    return triplets[1:counter]
+    return Triplets(triplets[1:counter])
 end
 
-function TripletEmbeddings.label(D::MaskedEuclideanDistanceMatrix{T}) where T <: Real
+function TripletEmbeddings.Triplets(D::MaskedEuclideanDistanceMatrix{T}) where T <: Real
     
     n = size(D,1)
-    Dm = mask(D)
+    Dm = masked(D)
     triplets = Vector{Tuple{Int,Int,Int}}(undef, n*binomial(n-1, 2))
     counter = 0   
 
@@ -45,5 +45,5 @@ function TripletEmbeddings.label(D::MaskedEuclideanDistanceMatrix{T}) where T <:
         end
     end
 
-    return triplets[1:counter]
+    return Triplets(triplets[1:counter])
 end
