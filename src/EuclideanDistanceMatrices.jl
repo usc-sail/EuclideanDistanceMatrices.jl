@@ -10,18 +10,20 @@ using TripletEmbeddings
 
 import Base: size, getindex, *, ndims, show
 import LinearAlgebra: rank
-import TripletEmbeddings: label
 
-export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix, J, 
+export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix, 
+       NoisyEuclideanDistanceMatrix, NoisyMaskedEuclideanDistanceMatrix,
+       J,
        
-       # triplets.jl
-       label, randommask, isedm,
+       # EDMs.jl
+       masked, isedm,
 
        # utilities.jl
-       relativeerror,
+       relativeerror, randommask,
 
        # completion.jl
-       complete, AlternatingDescent, SDP
+       complete,
+       AlternatingDescent, SDP # losses
 
 include("EDMs.jl")
 include("triplets.jl")
