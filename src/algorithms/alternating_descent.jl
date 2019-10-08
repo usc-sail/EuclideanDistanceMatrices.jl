@@ -11,9 +11,9 @@ end
 
 Complete an EMD using Alternating Descent.
 
-Authors: Reza Parhizkar and Ivan Dokmanic, 2014. Karel Mundnich (port to Julia)
+Authors: Reza Parhizkar and Ivan Dokmanic, 2014. Karel Mundnich (port to Julia), 2019
 """
-function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2, max_iterations::Int=50) where T <: Real
+function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2, max_iterations::Int = 50) where T <: Real
 
     n = size(D, 1)
     L = J(n)
@@ -67,7 +67,7 @@ function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2,
     X = X'L
     D = pairwise(SqEuclidean(), X, dims=2)
 
-    return EuclideanDistanceMatrix(D, distances=true), Embedding(X)
+    return EuclideanDistanceMatrix(D), Embedding(X)
 
 end
 

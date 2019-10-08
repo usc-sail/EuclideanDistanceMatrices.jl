@@ -6,7 +6,7 @@ function complete(D::MaskedEuclideanDistanceMatrix{T}, loss::TripletEmbeddings.A
     _ = fit!(loss, triplets, X; kwargs...)
 
     D̂ = EuclideanDistanceMatrix(X)
-    s = mean(filter(!isnan, D./D̂))    
+    s = mean(filter(!isnan, D./D̂))
 
     return s * D̂
 end

@@ -1,5 +1,5 @@
 """
-   randommask(D, p[ symmetric=false])
+   randommask(D, p[ symmetric=true])
 
 Generate a random Bernoulli mask of size(D).
 
@@ -23,19 +23,35 @@ Generate a random Bernoulli mask of size(D).
      false  false      0
 
 """
-function randommask(D::AbstractMatrix{T}, p::T; symmetric=true) where T <: Real
-    LinearAlgebra.checksquare(D)
-    @assert 0 < p ≤ 1 "p must be in the interval (0,1]."
-
+function randommask(n::Int, distribution::Bernoulli{T}; symmetric=true) where T
     if symmetric
         # Generates a random lower triangular matrix and then symmetrizes it
-        return Symmetric([i[1] > i[2] ? rand(Bernoulli(p)) : 0 for i in CartesianIndices(D)], :L)
+        return Symmetric([i[1] > i[2] ? rand(distribution) : 0 for i in CartesianIndices(zeros(n,n))], :L)
     else
         # Generates random entries for all entries
-        return [rand(Bernoulli(p)) for i in CartesianIndices(D)]
+        return [rand(distribution) for i in CartesianIndices(D)]
     end
 end
 
-function relativeerror(D::AbstractEuclideanDistanceMatrix{T}, D̂::AbstractEuclideanDistanceMatrix{T}) where T <: Real
-    return norm(D - D̂)/norm(D) * 100
+"""
+    randommask(n::Int, deletions::Int)
+
+Randomly and uniformly create a mask with 2 × "deletions" number of deletions. The
+2 × multiplier is due to the deletions done only on the entries below the diagonal,
+and then symmetrized.
+"""
+function randommask(n::Int, deletions::Int)
+    # We create a lower diagonal matrix from which we can sample CartesianIndices
+    # uniformly at random without replacement
+    mask = UnitLowerTriangular(ones(Int, n, n)) - Matrix(I, n, n)
+    indices = sample(findall(x -> x == 1, mask), deletions, replace=false)
+
+    mask[indices] .= 0
+    mask = mask + Matrix(I, n, n)
+
+    return Symmetric(mask, :L)
+end
+
+function relativeerror(D::MaskedEuclideanDistanceMatrix{T}, D̂::EuclideanDistanceMatrix{T}) where T <: Real
+    return norm(D.D - D̂.D)/norm(D.D) * 100
 end
