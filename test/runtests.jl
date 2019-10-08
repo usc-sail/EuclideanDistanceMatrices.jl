@@ -72,4 +72,46 @@ end
     fraction = 0.2
     mask = randommask(n, fraction)
     @test count(x -> x == 0, mask)/(prod(size(mask)) - n) == fraction
+
+    # idxmask
+    D = EuclideanDistanceMatrix(2, 10)
+    @test_throws BoundsError idxmask(D, CartesianIndices((9:11, 9:11)))
+
+    D = EuclideanDistanceMatrix(2, 10)
+    mask = [1  1  1  1  1  1  1  1  1  1;
+            1  1  0  0  1  1  1  1  1  1;
+            1  0  1  0  1  1  1  1  1  1;
+            1  0  0  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1]
+    @test all(mask .== idxmask(D, CartesianIndices((2:4, 2:4))))
+
+    mask = [1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  0  0  0  0;
+            1  1  1  1  1  1  0  0  0  0;
+            1  1  1  1  1  1  0  0  0  0;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1]
+    @test all(mask .== idxmask(D, CartesianIndices((7:10, 3:5)), symmetric=true))
+    @test all(mask .== idxmask(D, CartesianIndices((7:10, 3:5))))
+
+    mask = [1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  1  1  1  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1;
+            1  1  0  0  0  1  1  1  1  1]
+    @test all(mask .== idxmask(D, CartesianIndices((7:10, 3:5)), symmetric=false))
 end

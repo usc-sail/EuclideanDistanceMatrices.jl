@@ -81,3 +81,31 @@ elements.
 function randommask(D::EuclideanDistanceMatrix, fraction_of_deletions::Real)
     return randommask(size(D, 1), fraction_of_deletions)
 end
+
+"""
+    idxmask(D::EuclideanDistanceMatrix, indices::CartesianIndices)
+
+Generate a mask from CartesianIndices.
+
+The indices along the diagonal are ignored.
+"""
+function idxmask(D::EuclideanDistanceMatrix, indices::CartesianIndices; symmetric::Bool=true)
+    mask = ones(Int, size(D))
+    
+    # We set values to zero for all non-diagonal indices
+    mask[[idx for idx in indices if idx[1] != idx[2]]] .= 0
+    
+    if symmetric && issymmetric(mask)
+        return mask
+    elseif symmetric && !issymmetric(mask)
+        # If there are more zeros in the lower triangle
+        if count(x -> x == 0, LowerTriangular(mask)) > count(x -> x == 0, UpperTriangular(mask))
+            return Symmetric(mask, :L)
+        else # It's not symmetric, so the zeros must be above the diagonal
+            return Symmetric(mask, :U)
+        end
+    else
+        return mask
+    end
+
+end

@@ -19,7 +19,7 @@ export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix,
        masked, isedm,
 
        # utilities.jl
-       relativeerror, randommask,
+       relativeerror, randommask, idxmask, 
 
        # completion.jl
        complete,
