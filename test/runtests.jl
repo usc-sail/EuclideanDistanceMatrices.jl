@@ -1,5 +1,6 @@
 using Test
 using Distances
+using Distributions
 using TripletEmbeddings
 using EuclideanDistanceMatrices
 
@@ -55,4 +56,20 @@ end
 
     D = pairwise(SqEuclidean(), X, dims=1)
     @test_throws DomainError isedm(D)
+end
+
+@testset "masks.jl" begin
+    n = 20
+    deletions = 20
+    mask = randommask(n, deletions)
+    @test count(x -> x == 0, mask) == 2 * deletions
+
+    @test_throws DomainError randommask(-1, 10)
+    @test_throws DomainError randommask(-1, Bernoulli(0.5))
+    @test_throws DomainError randommask(2, 0)
+
+    n = 20
+    fraction = 0.2
+    mask = randommask(n, fraction)
+    @test count(x -> x == 0, mask)/(prod(size(mask)) - n) == fraction
 end

@@ -26,6 +26,7 @@ export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix,
        AlternatingDescent, SDP # losses
 
 include("EDMs.jl")
+include("masks.jl")
 include("triplets.jl")
 include("utilities.jl")
 include("completion.jl")
