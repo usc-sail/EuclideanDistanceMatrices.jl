@@ -20,7 +20,7 @@ end
 
 Generate a random Bernoulli mask of size(D, 1).
 """
-function randommask(D::EuclideanDistanceMatrix, distribution::Bernoulli{T}; symmetric=true) where T
+function randommask(D::EDM, distribution::Bernoulli{T}; symmetric=true) where T
     return randommask(size(D, 1), distribution, symmetric=symmetric)
 end
 
@@ -48,13 +48,13 @@ function randommask(n::Int, number_of_deletions::Int)
 end
 
 """
-    randommask(D::EuclideanDistanceMatrix, number_of_deletions::Int)
+    randommask(D::EDM, number_of_deletions::Int)
 
 Randomly and uniformly create a mask with 2 × "number_of_deletions" number of deletions for D.
 The 2 × multiplier is due to the deletions done only on the entries below the diagonal,
 and then symmetrized.
 """
-function randommask(D::EuclideanDistanceMatrix, number_of_deletions::Int)
+function randommask(D::EDM, number_of_deletions::Int)
     return randommask(size(D, 1), number_of_deletions)
 end
 
@@ -73,23 +73,23 @@ function randommask(n::Int, fraction_of_deletions::Float64)
 end
 
 """
-    randommask(D::EuclideanDistanceMatrix, fraction_of_deletions::Real)
+    randommask(D::EDM, fraction_of_deletions::Real)
 
 Randomly and uniformly create a mask with n * (n - 1) * fraction_of_deletions number of deleted
 elements.
 """
-function randommask(D::EuclideanDistanceMatrix, fraction_of_deletions::Real)
+function randommask(D::EDM, fraction_of_deletions::Real)
     return randommask(size(D, 1), fraction_of_deletions)
 end
 
 """
-    idxmask(D::EuclideanDistanceMatrix, indices::CartesianIndices)
+    idxmask(D::EDM, indices::CartesianIndices)
 
 Generate a mask from CartesianIndices.
 
 The indices along the diagonal are ignored.
 """
-function idxmask(D::EuclideanDistanceMatrix, indices::CartesianIndices; symmetric::Bool=true)
+function idxmask(D::EDM, indices::CartesianIndices; symmetric::Bool=true)
     mask = ones(Int, size(D))
     
     # We set values to zero for all non-diagonal indices

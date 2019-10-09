@@ -1,18 +1,18 @@
 """
-    abstract type AbstractEuclideanDistanceMatrix{T} <: AbstractMatrix{T} end
+    abstract type AbstractEDM{T} <: AbstractMatrix{T} end
 """
-abstract type AbstractEuclideanDistanceMatrix{T} <: AbstractMatrix{T} end
+abstract type AbstractEDM{T} <: AbstractMatrix{T} end
 
 """
-    EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T} <: AbstractMatrix{T}
+    EDM{T} <: AbstractEDM{T} <: AbstractMatrix{T}
 
 Euclidean Distance Matrix (EDM).
 
 # Examples
 Generate a random EDM:
 
-    julia> D = EuclideanDistanceMatrix(2, 3)
-    3×3 EuclideanDistanceMatrix{Float64}:
+    julia> D = EDM(2, 3)
+    3×3 EDM{Float64}:
      0.0        0.0588086  0.361541
      0.0588086  0.0        0.635088
      0.361541   0.635088   0.0
@@ -26,16 +26,16 @@ Generate an EDM from a Matrix or TripletEmbeddings.Embedding:
      0.584104  0.372789  0.389338
      0.54629   0.547285  0.609064
 
-    julia> D = EuclideanDistanceMatrix(X)
-    3×3 EuclideanDistanceMatrix{Float64}:
+    julia> D = EDM(X)
+    3×3 EDM{Float64}:
      0.0        0.0446553   0.0418744
      0.0446553  0.0         0.00409058
      0.0418744  0.00409058  0.0
 """
-mutable struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
-    D::Matrix{AbstractFloat} # Euclidean distances matrix
+mutable struct EDM{T} <: AbstractEDM{T}
+    D::Matrix{Float64} # Euclidean distances matrix
 
-    function EuclideanDistanceMatrix(d::Int, n::Int)
+    function EDM(d::Int, n::Int)
         d ≥ 1 || throw(DomainError("d < 1"))
         n ≥ 1 || throw(DomainError("n < 1"))
         @assert d ≤ n "We need d ≤ n (dimension ≤ # of points)"
@@ -49,144 +49,141 @@ mutable struct EuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
         new{Float64}(D)
     end
 
-    function EuclideanDistanceMatrix(D::Matrix{T}) where T <: Real
+    function EDM(D::Matrix{T}) where T <: Real
         isedm(D) || throw(DomainError(D, "D is not an EDM."))
         new{T}(D)
     end
 
-    function EuclideanDistanceMatrix(X::TripletEmbeddings.Embedding{T}) where T
+    function EDM(X::TripletEmbeddings.Embedding{T}) where T
         D = pairwise(SqEuclidean(), X, dims=2)
         new{T}(D)
     end
 
 end
 
-mutable struct NoisyEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
-    D::EuclideanDistanceMatrix{T} # Data
-    N::Matrix{AbstractFloat}      # Noise
+mutable struct NoisyEDM{T} <: AbstractEDM{T}
+    D::EDM{T} # Data
+    N::Matrix{Float64}            # Noise
 
-    function NoisyEuclideanDistanceMatrix(
-        D::EuclideanDistanceMatrix{T},
-        N::Matrix{T}) where T <: AbstractFloat
+    function NoisyEDM(
+        D::EDM{T},
+        N::Matrix{T}) where T <: Float64
 
         size(N) == size(D) || throw(DimensionMismatch("D and N must be the same size."))
 
-        new{T,S}(D, N)
+        new{T}(D, N)
     end
 
-    function NoisyEuclideanDistanceMatrix(
+    function NoisyEDM(
         X::TripletEmbeddings.Embedding{T},
-        N::Matrix{T}) where T <: AbstractFloat
+        N::Matrix{T}) where T <: Float64
 
-        D = EuclideanDistanceMatrix(X)
+        D = EDM(X)
         size(N) == size(D) || throw(DimensionMismatch("D and N must be the same size."))
 
         new{T}(D, N)
     end
 end
 
-mutable struct NoisyMaskedEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
-    D::EuclideanDistanceMatrix{T}
-    N::Matrix{<:Real}
+mutable struct MaskedEDM{T} <: AbstractEDM{T}
+    D::EDM{Float64} # Euclidean distances matrix
     mask::AbstractMatrix{<:Real}
 
-    function NoisyMaskedEuclideanDistanceMatrix(
-        X::TripletEmbeddings.Embedding{T},
-        N::Matrix{S},
-        mask::AbstractMatrix{P}) where {T <: Real, S <: AbstractFloat, P <: Real}
-        
-        D = EuclideanDistanceMatrix(X)
-
-        size(mask) == size(D) || throw(DimensionMismatch("D and mask must be the same size."))
-        size(mask) == size(N) || throw(DimensionMismatch("N and mask must be the same size."))
-        
-        new{T,S,P}(D, N, mask)
-    end
-
-    function NoisyMaskedEuclideanDistanceMatrix(
-        D::EuclideanDistanceMatrix{T},
-        N::Matrix{S},
-        mask::AbstractMatrix{P}) where {T <: Real, S <: AbstractFloat, P <: Real}
-        
-        size(mask) == size(D) || throw(DimensionMismatch("D and mask must be the same size."))
-        size(mask) == size(N) || throw(DimensionMismatch("N and mask must be the same size."))
-        
-        new{T,S,P}(D, N, mask)
-    end
-
-    function NoisyMaskedEuclideanDistanceMatrix(
-        D::NoisyEuclideanDistanceMatrix{T},
-        mask::AbstractMatrix{P}) where {T <: Real, S <: AbstractFloat, P <: Real}
-        
-        size(mask) == size(D) || throw(DimensionMismatch("D and mask must be the same size."))
-        size(mask) == size(D.N) || throw(DimensionMismatch("N and mask must be the same size."))
-        
-        new{T,S,P}(D.D, D.N, mask)
-    end
-end
-
-mutable struct MaskedEuclideanDistanceMatrix{T} <: AbstractEuclideanDistanceMatrix{T}
-    D::Matrix{AbstractFloat} # Euclidean distances matrix
-    mask::AbstractMatrix{<:Real}
-
-    function MaskedEuclideanDistanceMatrix(
+    function MaskedEDM(
         X::TripletEmbeddings.Embedding{T},
         p::T;
         symmetric=false) where T <: Real
 
         @assert 0 < p ≤ 1 "p must be in the interval (0,1]"
-        D = EuclideanDistanceMatrix(X)
-        new{T}(D, randommask(D, p; symmetric=symmetric))
+        D = EDM(X)
+        new{T}(D, randommask(D, Bernoulli(p); symmetric=symmetric))
     end
 
-    function MaskedEuclideanDistanceMatrix(
+    function MaskedEDM(
         X::TripletEmbeddings.Embedding{T},
         mask::AbstractMatrix{S}) where {T <: Real, S <: Real}
     
         D = pairwise(SqEuclidean(), X, dims=2)
-        size(D) == size(mask) || throw(DimensionMismatch("D and mask myust be the same size"))
+        size(D) == size(mask) || throw(DimensionMismatch("D and mask must be the same size"))
         new{T}(D, mask)
     end
 
-    function MaskedEuclideanDistanceMatrix(
-        D::EuclideanDistanceMatrix{T},
+    function MaskedEDM(
+        D::EDM{T},
         p::T) where T <: Real
 
         @assert 0 < p ≤ 1 "p must be in the interval (0,1]"
         new{T}(D.D, rand(Bernoulli(p), size(D)))
     end
 
-    function MaskedEuclideanDistanceMatrix(
-        D::EuclideanDistanceMatrix{T},
+    function MaskedEDM(
+        D::EDM{T},
         distribution::S) where {T <: Real, S <: Distribution{Univariate,Discrete}}
         
         new{T}(D.D, rand(distribution, size(D)))
     end
 
-    function MaskedEuclideanDistanceMatrix(
-        D::EuclideanDistanceMatrix{T},
+    function MaskedEDM(
+        D::EDM{T},
         mask::AbstractMatrix{S}) where {T <: Real, S <: Real}
         
-        size(D) == size(mask) || throw(DimensionMismatch("D and mask myust be the same size"))
+        size(D) == size(mask) || throw(DimensionMismatch("D and mask must be the same size"))
         new{T}(D.D, mask)
     end
 end
 
-masked(D::MaskedEuclideanDistanceMatrix) = D .* D.mask
+mutable struct NoisyMaskedEDM{T} <: AbstractEDM{T}
+    D::MaskedEDM{T}
+    N::Matrix{<:Real}
 
-Base.size(D::AbstractEuclideanDistanceMatrix) = size(D.D)
-Base.getindex(D::AbstractEuclideanDistanceMatrix, inds...) = getindex(D.D, inds...)
+    function NoisyMaskedEDM(
+        X::TripletEmbeddings.Embedding{T},
+        N::Matrix{P},
+        mask::AbstractMatrix{S},) where {T <: Real, S <: Real, P <: Real}
 
-function Base.show(io::IO, ::MIME"text/plain", D::MaskedEuclideanDistanceMatrix)
+        new{T}(MaskedEDM(X, mask), N)
+
+    end
+
+    function NoisyMaskedEDM(
+        D::EDM{T},
+        N::Matrix{P},
+        mask::AbstractMatrix{S}) where {T <: Real, S <: Real, P <: Real}
+        
+        size(mask) == size(D) || throw(DimensionMismatch("D and mask must be the same size."))
+        size(mask) == size(N) || throw(DimensionMismatch("N and mask must be the same size."))
+        
+        new{T}(MaskedEDM(D, mask), N)
+    end
+
+    function NoisyMaskedEDM(
+        D::NoisyEDM{T},
+        mask::AbstractMatrix{S}) where {T <: Real, S <: Real}
+        
+        size(mask) == size(D) || throw(DimensionMismatch("D and mask must be the same size."))
+        size(mask) == size(D.N) || throw(DimensionMismatch("N and mask must be the same size."))
+        
+        new{T}(MaskedEDM(D, mask), D.N)
+    end
+end
+
+masked(D::MaskedEDM) = D .* D.mask
+
+Base.size(D::AbstractEDM) = size(D.D)
+Base.getindex(D::AbstractEDM, inds...) = getindex(D.D, inds...)
+
+nitems(D::AbstractEDM) = size(D.D, 1)
+
+function Base.show(io::IO, ::MIME"text/plain", D::MaskedEDM)
     show(io, "text/plain", D.D .* D.mask)
 end
 
-function Base.:*(s::Number, D::AbstractEuclideanDistanceMatrix)
+function Base.:*(s::Number, D::AbstractEDM)
     D.D = s * D.D
     return D
 end
 
-LinearAlgebra.rank(D::AbstractEuclideanDistanceMatrix) = rank(D.D)
+LinearAlgebra.rank(D::AbstractEDM) = rank(D.D)
 
 """
     isedm(D[, atol=sqrt(eps())])

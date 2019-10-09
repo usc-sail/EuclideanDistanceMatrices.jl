@@ -1,9 +1,9 @@
 """
-    Triplets(D::EuclideanDistanceMatrix{T}) where T
+    Triplets(D::EDM{T}) where T
 
 Compute the triplets from D.
 """
-function TripletEmbeddings.Triplets(D::EuclideanDistanceMatrix{T}) where T <: Real
+function TripletEmbeddings.Triplets(D::EDM{T}) where T <: Real
   
     n = size(D,1)
     triplets = Vector{Tuple{Int,Int,Int}}(undef, n*binomial(n-1, 2))
@@ -25,11 +25,11 @@ function TripletEmbeddings.Triplets(D::EuclideanDistanceMatrix{T}) where T <: Re
 end
 
 """
-    Triplets(D::MaskedEuclideanDistanceMatrix{T}) where T
+    Triplets(D::MaskedEDM{T}) where T
 
 Compute the triplets from D, using only its unmasked (or non-zero) values.
 """
-function TripletEmbeddings.Triplets(D::MaskedEuclideanDistanceMatrix{T}) where T <: Real
+function TripletEmbeddings.Triplets(D::MaskedEDM{T}) where T <: Real
     
     n = size(D,1)
     Dm = masked(D)

@@ -1,19 +1,24 @@
 struct AlternatingDescent <: AbstractLoss end
 
-function complete(D::MaskedEuclideanDistanceMatrix, loss::AlternatingDescent, d::Int)
+function complete(D::MaskedEDM{T}, loss::AlternatingDescent, d::Int) where T
     D̂, _ = alternating_descent(D, dims=d)
 
     return D̂
 end
 
+# function complete(D::NoisyMaskedEuclideanDistanceMatrix, loss::AlternatingDescent, d::Int)
+#     Dm = 
+
+# end
+
 """
-    alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2, max_iterations::Int=50) where T <: Real
+    alternating_descent(D::MaskedEDM{T}; dims::Int = 2, max_iterations::Int=50) where T <: Real
 
 Complete an EMD using Alternating Descent.
 
 Authors: Reza Parhizkar and Ivan Dokmanic, 2014. Karel Mundnich (port to Julia), 2019
 """
-function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2, max_iterations::Int = 50) where T <: Real
+function alternating_descent(D::MaskedEDM{T}; dims::Int = 2, max_iterations::Int = 50) where T <: Real
 
     n = size(D, 1)
     L = J(n)
@@ -68,6 +73,10 @@ function alternating_descent(D::MaskedEuclideanDistanceMatrix{T}; dims::Int = 2,
     D = pairwise(SqEuclidean(), X, dims=2)
 
     return EuclideanDistanceMatrix(D), Embedding(X)
+
+end
+
+function alternating_descent(D::NoisyMaskedEDM{T}; dims::Int = 2, max_iterations::Int = 50) where T <: Real
 
 end
 

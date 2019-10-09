@@ -1,4 +1,4 @@
-function complete(D::MaskedEuclideanDistanceMatrix{T}, loss::TripletEmbeddings.AbstractLoss, d::Int; kwargs...) where T <: Real
+function complete(D::MaskedEDM{T}, loss::TripletEmbeddings.AbstractLoss, d::Int; kwargs...) where T <: Real
     @assert d ≥ 1 "d must be ≥ 1"
 
     triplets = Triplets(D)

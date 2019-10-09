@@ -1,11 +1,11 @@
 struct SDP <: AbstractLoss end
 
-function complete(D::MaskedEuclideanDistanceMatrix{T}, loss::SDP, dims::Int) where T <: Real
+function complete(D::MaskedEDM{T}, loss::SDP, dims::Int) where T <: Real
     return SDP(D)
     # return EuclideanDistanceMatrix(D, distances=true)
 end
 
-function SDP(D::MaskedEuclideanDistanceMatrix{T}) where T <: Real
+function SDP(D::MaskedEDM{T}) where T <: Real
     ##
     # D = sdr_complete_D(D, W, dims)
     #

@@ -11,12 +11,11 @@ using TripletEmbeddings
 import Base: size, getindex, *, ndims, show
 import LinearAlgebra: rank
 
-export EuclideanDistanceMatrix, MaskedEuclideanDistanceMatrix, 
-       NoisyEuclideanDistanceMatrix, NoisyMaskedEuclideanDistanceMatrix,
+export EDM, MaskedEDM, NoisyEDM, NoisyMaskedEDM,
        J,
        
        # EDMs.jl
-       masked, isedm,
+       masked, isedm, nitems, 
 
        # utilities.jl
        relativeerror, randommask, idxmask, 

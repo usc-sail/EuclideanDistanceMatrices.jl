@@ -9,40 +9,40 @@ using EuclideanDistanceMatrices
 end
 
 @testset "EDMs.jl" begin
-    # EuclideanDistanceMatrix
+    # EDM
     d = 20
     n = 10
-    @test_throws AssertionError EuclideanDistanceMatrix(d, n)
-    @test_throws DomainError EuclideanDistanceMatrix(-1, n)
-    @test_throws DomainError EuclideanDistanceMatrix(d, -1)
+    @test_throws AssertionError EDM(d, n)
+    @test_throws DomainError EDM(-1, n)
+    @test_throws DomainError EDM(d, -1)
 
     d = 2
     n = 10
     D = pairwise(SqEuclidean(), rand(d, n), dims=2)
-    @test_throws DomainError EuclideanDistanceMatrix(D + rand(n, n))
+    @test_throws DomainError EDM(D + rand(n, n))
 
     D = Matrix{Float64}(undef, 1, 1)
     D[1,1] = 1
-    @test_throws DomainError EuclideanDistanceMatrix(D)
+    @test_throws DomainError EDM(D)
 
-    # NoisyEuclideanDistanceMatrix
-    D = EuclideanDistanceMatrix(2,10)
+    # NoisyEDM
+    D = EDM(2,10)
     N = rand(2,2)
     X = Embedding(2,10)
 
-    @test_throws DimensionMismatch NoisyEuclideanDistanceMatrix(D, N)
-    @test_throws DimensionMismatch NoisyEuclideanDistanceMatrix(X, N)
+    @test_throws DimensionMismatch NoisyEDM(D, N)
+    @test_throws DimensionMismatch NoisyEDM(X, N)
 
-    # NoisyMaskedEuclideanDistanceMatrix
+    # NoisyMaskedEDM
     X = Embedding(2,10)
     N = rand(10,10)
     mask = rand(3,4)
-    @test_throws DimensionMismatch NoisyMaskedEuclideanDistanceMatrix(X, N, mask)
+    @test_throws DimensionMismatch NoisyMaskedEDM(X, N, mask)
 
-    D = EuclideanDistanceMatrix(2,9)
+    D = EDM(2,9)
     N = rand(10,10)
     mask = rand(3,4)
-    @test_throws DimensionMismatch NoisyMaskedEuclideanDistanceMatrix(X, N, mask)
+    @test_throws DimensionMismatch NoisyMaskedEDM(X, N, mask)
 
     # isedm
     X = rand(3,10)
@@ -74,10 +74,10 @@ end
     @test count(x -> x == 0, mask)/(prod(size(mask)) - n) == fraction
 
     # idxmask
-    D = EuclideanDistanceMatrix(2, 10)
+    D = EDM(2, 10)
     @test_throws BoundsError idxmask(D, CartesianIndices((9:11, 9:11)))
 
-    D = EuclideanDistanceMatrix(2, 10)
+    D = EDM(2, 10)
     mask = [1  1  1  1  1  1  1  1  1  1;
             1  1  0  0  1  1  1  1  1  1;
             1  0  1  0  1  1  1  1  1  1;
